@@ -67,10 +67,10 @@ def plot_fit_sym_comp(volt_list, fit_params_mat_1, fit_params_mat_2, freq_list, 
             fit_params_mat_1[:, :, 0] * factor)
 
 
-    fig = plt.figure(figsize=(6, 2))
+    fig = plt.figure(figsize=(12, 4))
     ax = fig.add_subplot(1, 1, 1)
 
-    n_win = 10
+    n_win = 20
     color = iter(plt.cm.rainbow(np.linspace(0, 1, n_f)))
     for i in range(n_f):
         c = next(color)
@@ -82,8 +82,9 @@ def plot_fit_sym_comp(volt_list, fit_params_mat_1, fit_params_mat_2, freq_list, 
         sym_f_z_roll = np.array(sym_f_z.rolling(n_win, center=True).sum()) / n_win
         sym_f_z_roll = sym_f_z_roll / np.nanmax(abs(sym_f_z_roll))
 
-        ax.plot((abs(fit_f_z_roll)-abs(sym_f_z_roll))/abs(sym_f_z_roll), linestyle='-', color=c, label='f=' + str(freq_list[i]) + "Hz")
-        #ax.plot(sym_f_z_roll, linestyle='--', color=c) # , label='f=' + str(freq_list[i]) + "Hz")
+        #ax.plot((abs(fit_f_z_roll)-abs(sym_f_z_roll))/abs(sym_f_z_roll), linestyle='-', color=c, label='f=' + str(freq_list[i]) + "Hz")
+        ax.plot((-fit_f_z_roll/sym_f_z_roll), linestyle='-', color=c, label='f=' + str(freq_list[i]) + "Hz")
+        # ax.plot(sym_f_z_roll, linestyle='--', color=c) # , label='f=' + str(freq_list[i]) + "Hz")
 
     plt.grid(True)
     ax.set_xlim(0, 100)
