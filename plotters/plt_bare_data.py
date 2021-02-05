@@ -159,7 +159,7 @@ def plot_rel_diff_bare_signal_and_fit_norm_shifted(step, volt_list, freq_list, f
                 label='f=' + str(freq_list[i]) + "Hz")
         # ax.plot(x_fit, (y_data-y_fit)/y_data)
         # ax.plot(x_fit, (y_data / p_opt[0] - y_fit_base / p_opt_base[0]) / (y_fit_base / p_opt_base[0]))
-    ax.set_xlim(-0.5, 0.5)
+    ax.set_xlim(-0.55, 0.55)
 
     ax.set_xlabel(r'$x[m]$', fontsize=20)
     ax.set_ylabel(r'$(\tilde{B}^d_x-\tilde{B}^i_x)/\tilde{B}_x^i$', fontsize=20)

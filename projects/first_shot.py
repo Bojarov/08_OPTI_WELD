@@ -10,7 +10,8 @@ import numpy as np
 
 
 
-def notebook_01():
+def notebook_00():
+
     freq_list, volt_list = las.load_freq_volt()
 
     n_steps, n_det, n_f, _ = np.shape(volt_list)
@@ -35,7 +36,7 @@ def notebook_01():
     pbd.plot_bare_signal_and_fit_norm_shifted(0, volt_list, freq_list, fit_params_mat_s, ff.f_b_field_off)
 
     # example of "corrected" data, b-field of ideal pipe centered at x = 0, and corresponding data
-    pbd.plot_rel_diff_bare_signal_and_fit_norm_shifted(0, volt_list, freq_list, fit_params_mat_s, ff.f_b_field_off)
+    #pbd.plot_rel_diff_bare_signal_and_fit_norm_shifted(0, volt_list, freq_list, fit_params_mat_s, ff.f_b_field_off)
 
     # cleaned relative asymmetry between data and ideal case for one detector point and different positions
     # along the pipeline axis
