@@ -18,6 +18,11 @@ def plot_fit_params_f_z(fit_params_mat, freq_list, para_ind=0):
         ax.plot(z_vec, fit_params_mat[:, i, para_ind], label='f=' + str(freq_list[i]) + "Hz")
     ax.legend()
 
+    ax.set_xlabel(r'$z$', fontsize=20)
+    ax.set_ylabel(r'$x_0 $', fontsize=20)
+    plt.grid(True)
+    #ax.set_xlim(0, 100)
+
 
 def plot_dist_fit_params(fit_params_mat, freq_list, para_ind=0):
     n_steps, n_f, _ = np.shape(fit_params_mat)
@@ -67,10 +72,12 @@ def plot_fit_sym_comp(volt_list, fit_params_mat_1, fit_params_mat_2, freq_list, 
             fit_params_mat_1[:, :, 0] * factor)
 
 
+
+
     fig = plt.figure(figsize=(12, 4))
     ax = fig.add_subplot(1, 1, 1)
 
-    n_win = 20
+    n_win = 1
     color = iter(plt.cm.rainbow(np.linspace(0, 1, n_f)))
     for i in range(n_f):
         c = next(color)
@@ -83,9 +90,12 @@ def plot_fit_sym_comp(volt_list, fit_params_mat_1, fit_params_mat_2, freq_list, 
         sym_f_z_roll = sym_f_z_roll / np.nanmax(abs(sym_f_z_roll))
 
         #ax.plot((abs(fit_f_z_roll)-abs(sym_f_z_roll))/abs(sym_f_z_roll), linestyle='-', color=c, label='f=' + str(freq_list[i]) + "Hz")
-        ax.plot((-fit_f_z_roll/sym_f_z_roll), linestyle='-', color=c, label='f=' + str(freq_list[i]) + "Hz")
+        ax.plot((-fit_f_z_roll/abs(sym_f_z_roll)), linestyle='-', color=c, label='f=' + str(freq_list[i]) + "Hz")
+        ax.plot(sym_f_z_roll/sym_f_z_roll, linestyle='--', color='black')
+        ax.plot(-sym_f_z_roll/sym_f_z_roll, linestyle='--', color='black')
         # ax.plot(sym_f_z_roll, linestyle='--', color=c) # , label='f=' + str(freq_list[i]) + "Hz")
-
+    ax.set_xlabel(r'$z$', fontsize=20)
+    ax.set_ylabel(r'$\Delta  \mathcal{B}_x/\left|\mathcal{X}_0\right| $', fontsize=20)
     plt.grid(True)
     ax.set_xlim(0, 100)
     ax.legend()
