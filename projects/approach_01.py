@@ -10,6 +10,11 @@ import plotters.plt_fit_para as pfp
 
 
 def notebook_01():
+    """
+    In this notebook we do the same as for the first shot but we include a background symmetrization of the bare data
+    in order to include the effect of the cable that connects the pipeline ends
+    """
+
     freq_list, volt_list = las.load_freq_volt()
 
     n_steps, n_det, n_f, _ = np.shape(volt_list)
@@ -31,8 +36,19 @@ def notebook_01():
 
     fit_params_mat_s = fp.fit_params(ff.f_b_field_off, volt_list_sym)
 
-    pbd.plot_bare_signal_and_fit_norm_shifted(0, volt_list_sym, freq_list, fit_params_mat_s, ff.f_b_field_off)
+    # pbd.plot_bare_signal_and_fit_norm_shifted(0, volt_list_sym, freq_list, fit_params_mat_s, ff.f_b_field_off)
 
     # pfp.plot_fit_sym_comp(volt_list_sym, fit_params_mat, fit_params_mat_s, freq_list)
 
+
+    # pfp.plot_fit_sym_comp_2(volt_list_sym, fit_params_mat_s, freq_list)
+
+    #pfp.plot_symmetry_along_z(volt_list_sym, freq_list, fit_params_mat_s, ff.f_b_field_off)
+
+    fp.fit_params_FH_data(ff.f_b_field)
+
     # pbd.plot_rel_diff_bare_signal_and_fit_norm_shifted(0, volt_list_sym, freq_list, fit_params_mat_s, ff.f_b_field_off)
+
+
+
+

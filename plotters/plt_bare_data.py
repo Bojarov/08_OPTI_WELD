@@ -95,14 +95,12 @@ def plot_bare_signal_and_fit_norm_shifted(step, volt_list, freq_list, fit_params
 
     # fit date to compare to
     x_fit = np.linspace(-0.5, 0.5, 10000)
-    p_opt_base = fit_params_mat[step, 0, :]
-    y_fit_base = fit_func(x_fit, *tuple(p_opt_base))
+    # p_opt_base = fit_params_mat[step, 0, :]
+    # y_fit_base = fit_func(x_fit, *tuple(p_opt_base))
 
     color = iter(plt.cm.rainbow(np.linspace(0, 1, n_f)))
 
     mean_shift = np.sum(fit_params_mat[step, :, 2]) / n_f
-    # mean_current = np.sum(fit_params_mat[step, :, 0]) / n_f
-    # mean_current = min(fit_params_mat[step, :, 0])
 
     for i in range(n_f):
         c = next(color)
