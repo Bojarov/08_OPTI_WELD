@@ -26,3 +26,4 @@ def chi_sqrt_mat_calc(volt_list, fit_params_mat, fit_func):
             print(a)
 
     return chi_sqrt_mat
+

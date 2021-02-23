@@ -5,7 +5,7 @@ from scipy.stats import norm
 import pandas as pd
 
 
-def plot_fit_params_f_z(fit_params_mat, freq_list, para_ind=0):
+def plot_fit_params_f_step_axis(fit_params_mat, freq_list, para_ind=0):
     n_steps, n_f, _ = np.shape(fit_params_mat)
 
     z_vec = np.linspace(0, 1, n_steps)
@@ -13,14 +13,67 @@ def plot_fit_params_f_z(fit_params_mat, freq_list, para_ind=0):
     fig = plt.figure(figsize=(3, 2))
 
     ax = fig.add_subplot(1, 1, 1)
-
+    print(len(freq_list), n_f)
     for i in range(n_f):
         ax.plot(z_vec, fit_params_mat[:, i, para_ind], label='f=' + str(freq_list[i]) + "Hz")
     ax.legend()
 
-    ax.set_xlabel(r'$z$', fontsize=20)
+    ax.set_xlabel(r'$\varphi_d/\pi$', fontsize=20)
+    #ax.set_xlabel(r'$z$', fontsize=20)
     ax.set_ylabel(r'$x_0 $', fontsize=20)
     plt.grid(True)
+
+def plot_fit_params_f_step_axis_2(fit_params_mat, freq_list, para_ind=0):
+    n_steps, n_f, _ = np.shape(fit_params_mat)
+
+    z_vec = np.linspace(0, 1, n_steps)
+
+    fig = plt.figure(figsize=(3, 2))
+
+    ax = fig.add_subplot(1, 1, 1)
+    print(len(freq_list), n_f)
+    #for i in range(n_f):
+    ax.plot(z_vec, fit_params_mat[:, 0, para_ind]-fit_params_mat[:, n_f-1, para_ind])
+    #ax.legend()
+
+    ax.set_xlabel(r'$\varphi_d/\pi$', fontsize=20)
+    #ax.set_xlabel(r'$z$', fontsize=20)
+    ax.set_ylabel(r'$x_0(f=2Hz)-x_0(f=128Hz) $', fontsize=20)
+    plt.grid(True)
+
+
+
+def plot_diff_f_step_axis(fit_params_mat, freq_list, para_ind=0):
+    n_steps, n_f, _ = np.shape(fit_params_mat)
+
+    z_vec = np.linspace(0, 1, n_steps)
+
+    fig = plt.figure(figsize=(3, 2))
+
+    ax = fig.add_subplot(1, 1, 1)
+    print(len(freq_list), n_f)
+    print(freq_list)
+    background=np.sum(fit_params_mat[:, 0, para_ind]-fit_params_mat[:, 5 , para_ind])/len(fit_params_mat[:, 0, para_ind])
+    ax.plot(z_vec, (fit_params_mat[:, 0, para_ind]-fit_params_mat[:, 5 , para_ind])-background)#, label='f=' + str(freq_list[i]) + "Hz")
+    ax.legend()
+
+    ax.set_xlabel(r'$z$', fontsize=20)
+    ax.set_ylabel(r'$x_0(f=3Hz) - x_0(f=96Hz) $', fontsize=20)
+    plt.grid(True)
+
+
+def plot_fit_params_f_axis(fit_params_mat, step_list, freq_list, para_ind=0):
+    n_steps, n_f, _ = np.shape(fit_params_mat)
+    z_vec = freq_list#np.linspace(0, 1, n_f)
+    fig = plt.figure(figsize=(3, 2))
+    ax = fig.add_subplot(1, 1, 1)
+    for i in range(n_steps):
+        ax.plot(z_vec, fit_params_mat[i, :, para_ind], label=r'$\varphi/\pi=$' + str(step_list[i]/np.pi))
+    ax.legend()
+    ax.set_xlabel(r'$f[Hz]$', fontsize=20)
+    ax.set_ylabel(r'$x_0 $', fontsize=20)
+    plt.grid(True)
+    #plt.tight_layout()
     # ax.set_xlim(0, 100)
 
 
@@ -127,15 +180,15 @@ def plot_fit_sym_comp_2(volt_list_sym, fit_params_mat_s, freq_list, factor=89000
     ax.legend()
 
 
-def plot_symmetry_along_z(volt_list_sym, freq_list, fit_params_mat, fit_func, factor=89000):
-    n_steps, n_det, n_f, _ = np.shape(volt_list_sym)
+def plot_symmetry_along_z(volt_list, freq_list, fit_params_mat, fit_func, factor=89000):
+    n_steps, n_det, n_f, _ = np.shape(volt_list)
 
     fig = plt.figure(figsize=(6, 4))
     ax = fig.add_subplot(1, 1, 1)
 
     x_data = np.array([-0.5, -0.16667, 0.16667, 0.5])
 
-    y_data = np.array(volt_list_sym)[:, :, :, 1] / \
+    y_data = np.array(volt_list)[:, :, :, 1] / \
              (factor * np.repeat(fit_params_mat[:, np.newaxis, :, 0], 4, axis=1))
 
     y_fit_left = np.zeros((n_steps, n_det, n_f))

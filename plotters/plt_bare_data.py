@@ -12,13 +12,14 @@ rc('text', usetex=True)
 
 # rc('font',**fontProperties)
 
-def plot_bare_signal(step, volt_list, freq_list, factor=89000):
+def plot_bare_signal(step, x_data, volt_list, freq_list, factor=89000):
     n_steps, n_det, n_f, _ = np.shape(volt_list)
+    #n_f = len(freq_list)
 
     fig = plt.figure(figsize=(3, 2))
     ax = fig.add_subplot(1, 1, 1)
     for i in range(n_f):
-        x_data = np.array([-0.5, -0.16667, 0.16667, 0.5])
+        # x_data = np.array([-0.5, -0.16667, 0.16667, 0.5])
         y_data = np.array(volt_list)[step, :, i, 1] / factor
         ax.plot(x_data, y_data, marker='x', linestyle='', label='f=' + str(freq_list[i]) + "Hz")
 
@@ -38,7 +39,7 @@ def plot_bare_signal_and_fit(step, volt_list, freq_list, fit_params_mat, factor=
     for i in range(n_f):
         c = next(color)
         # bare data
-        x_data = np.array([-0.5, -0.16667, 0.16667, 0.5])
+        x_data = np.array([-0.5, -0.16667, 0, 0.16667, 0.5])
         y_data = np.array(volt_list)[step, :, i, 1] / factor
 
         # fit data

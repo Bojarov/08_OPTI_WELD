@@ -3,7 +3,7 @@ from scipy.optimize import curve_fit
 import numpy as np
 import matplotlib.pyplot as plt
 
-def fit_params(my_func, volt_list, factor=89000):
+def fit_params(my_func, x_data, volt_list, factor=89000):
     sig = signature(my_func)
     n_steps, _, n_f, _ = np.shape(volt_list)
     n_fit_params = len(list(sig.parameters)) - 1
@@ -12,12 +12,12 @@ def fit_params(my_func, volt_list, factor=89000):
 
     for i in range(n_steps):
         for j in range(n_f):
-            x_data = np.array([-0.5, -0.16667, 0.16667, 0.5])
             y_data = np.array(volt_list)[i, :, j, 1] / factor
+
             p_opt, _ = curve_fit(my_func, x_data, y_data)
 
-            fit_params_mat[i, j, :] = p_opt
 
+            fit_params_mat[i, j, :] = p_opt
     return fit_params_mat
 
 
@@ -109,6 +109,7 @@ def fit_params_FH_data(my_func, factor=89000):
         c = next(color3)
         x_data = np.array([-1.0, -0.75, -0.5, -0.4, -0.2, -0.1, 0.0, 0.1, 0.2, 0.4, 0.5, 0.75, 1.0])
         p_opt = fit_params_mat[0, i, :]
+
         y_fit_ideal = my_func(x_data, *tuple(p_opt))
         #y_data_real = bvec[i, :] / (1000 * factor)
         y_sim_ideal = bvec_i[i, :] / (1000 * factor)

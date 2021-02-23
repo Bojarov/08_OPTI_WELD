@@ -12,3 +12,10 @@ def load_freq_volt():
         volt_list = list(np.load(voltages, allow_pickle=True))
 
     return freq_list, volt_list
+
+
+def load_array(array_path):
+    with open(array_path, 'rb') as np_mat:
+        np_arr = np.load(np_mat, allow_pickle=True)
+
+    return np_arr
