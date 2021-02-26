@@ -162,13 +162,11 @@ def f_b_field_elliptic_fit(x, I, a_t, x0, y0, alpha):
 
     return b_vec
 
-
 def ellipse_pts(phi, x0, y0, alpha, a, b):
     pts = np.zeros((2, len(phi)))
     pts[0, :] = x0 + a * np.cos(alpha) * np.cos(phi) - b * np.sin(alpha) * np.sin(phi)
     pts[1, :] = y0 + a * np.sin(alpha) * np.cos(phi) + b * np.cos(alpha) * np.sin(phi)
     return pts
-
 
 def ellipse_tang_vecs(phi, alpha, a, b):
     tang_x = - a * np.cos(alpha) * np.sin(phi) - b * np.sin(alpha) * np.cos(phi)
