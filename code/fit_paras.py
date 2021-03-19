@@ -3,6 +3,49 @@ from scipy.optimize import curve_fit
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+def fit_mat_bx_by(my_model, x_data, volt_list, p0_mat=None, p0_add=None):
+    sig = signature(my_model)
+    n_steps, _, n_f, _ = np.shape(volt_list)
+
+    p_opt_mat = np.zeros((n_steps, n_f, len(list(sig.parameters)) - 1))
+
+    for i in range(n_steps):
+        for j in range(n_f):
+            if p0_mat is None:
+                p_opt_mat[i, j, :] = fit_params_bx_by(i, j, my_model, x_data, volt_list)
+            else:
+                if p0_add is None:
+                    p0 = p0_mat[i, j, :]
+                    p_opt_mat[i, j, :] = fit_params_bx_by(i, j, my_model, x_data, volt_list, p0)
+                else:
+                    p0 = np.concatenate((p0_mat[i, j, :], p0_add), axis=None)
+                    p_opt_mat[i, j, :] = fit_params_bx_by(i, j, my_model, x_data, volt_list, p0)
+
+    return p_opt_mat
+
+
+def fit_params_bx_by(i_mp, i_f, my_model, x_data, volt_list, p0=None, factor=89000):
+    sig = signature(my_model)
+
+    by_det = np.array(volt_list)[i_mp, :, i_f, 1] / factor
+    bz_det = np.array(volt_list)[i_mp, :, i_f, 2] / factor
+
+    b_stack_target = np.concatenate((by_det, bz_det), axis=None)
+
+    try:
+        if p0 is None:
+            p_opt, _ = curve_fit(my_model, x_data, b_stack_target)
+        else:
+            p_opt, _ = curve_fit(my_model, x_data, b_stack_target, p0)
+
+    except RuntimeError:
+        p_opt = np.zeros(len(list(sig.parameters)) - 1)
+        print("Error - curve_fit failed")
+
+    return p_opt
+
+
 def fit_params(my_func, x_data, volt_list, factor=89000):
     sig = signature(my_func)
     n_steps, _, n_f, _ = np.shape(volt_list)
@@ -15,7 +58,6 @@ def fit_params(my_func, x_data, volt_list, factor=89000):
             y_data = np.array(volt_list)[i, :, j, 1] / factor
 
             p_opt, _ = curve_fit(my_func, x_data, y_data)
-
 
             fit_params_mat[i, j, :] = p_opt
     return fit_params_mat
@@ -33,39 +75,36 @@ def fit_params_FH_data(my_func, factor=89000):
 
     fit_params_mat = np.zeros((n_steps, n_f, n_fit_params))
     x_data = np.array([-1.0, -0.75, -0.5, -0.4, -0.2, -0.1, 0.0, 0.1, 0.2, 0.4, 0.5, 0.75, 1.0])
-    x_fit = np.linspace(-0.5,0.5,100)
-    i_ideal_vec =np.array([2.6420795743181618, 1.3212431653912475, 0.6608175584692688])
-    i_damage_vec =np.array([2.641187476588734, 1.3208711101054076, 0.6606485501499122])
+    x_fit = np.linspace(-0.5, 0.5, 100)
+    i_ideal_vec = np.array([2.6420795743181618, 1.3212431653912475, 0.6608175584692688])
+    i_damage_vec = np.array([2.641187476588734, 1.3208711101054076, 0.6606485501499122])
     for i in range(n_steps):
         for j in range(n_f):
-            y_data = bvec[j, :] * i_damage_vec[j] *2*10**(-7) / (1000)  # np.array(volt_list)[i, :, j, 1] / factor
-            #print(y_data)
+            y_data = bvec[j, :] * i_damage_vec[j] * 2 * 10 ** (-7) / (1000)  # np.array(volt_list)[i, :, j, 1] / factor
+            # print(y_data)
 
-            #print(x_data)
-            #print(y_data)
+            # print(x_data)
+            # print(y_data)
 
             p_opt, _ = curve_fit(my_func, x_data, y_data)
 
             fit_params_mat[i, j, :] = p_opt
             print(p_opt)
 
-
     color = iter(plt.cm.rainbow(np.linspace(0, 1, n_f)))
 
     fig = plt.figure(figsize=(6, 4))
     ax = fig.add_subplot(1, 1, 1)
     for i in range(n_f):
-
-
         p_opt = fit_params_mat[0, i, :]
         c = next(color)
-        y_fit = abs(my_func(x_fit, *tuple(p_opt))/i_damage_vec[i])
-        y_data = abs(bvec[i, :]*2*10**(-7) / (1000))
-        #ax.plot(x_data[2:11], -y_data[2:11]/i_damage_vec[i], color=c, marker='x', linestyle='')
+        y_fit = abs(my_func(x_fit, *tuple(p_opt)) / i_damage_vec[i])
+        y_data = abs(bvec[i, :] * 2 * 10 ** (-7) / (1000))
+        # ax.plot(x_data[2:11], -y_data[2:11]/i_damage_vec[i], color=c, marker='x', linestyle='')
         ax.plot(x_data[2:11], y_data[2:11], color=c, marker='x', linestyle='')
         ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0), useOffset=None, useLocale=None, useMathText=None)
         ax.plot(x_fit, y_fit, color=c, linestyle='-', label='f=' + str(freq_list[i]) + "Hz")
-        #ax.plot(x_fit, y_fit/p_opt[0], color=c, linestyle='-', label='f=' + str(freq_list[i]) + "Hz")
+        # ax.plot(x_fit, y_fit/p_opt[0], color=c, linestyle='-', label='f=' + str(freq_list[i]) + "Hz")
         ax.set_xlim(-0.55, 0.55)
         ax.set_xlabel(r'$x[m]$', fontsize=20)
         ax.set_ylabel(r'$B_x/I_{tot}$', fontsize=20)
@@ -80,17 +119,19 @@ def fit_params_FH_data(my_func, factor=89000):
         x_data = np.array([-1.0, -0.75, -0.5, -0.4, -0.2, -0.1, 0.0, 0.1, 0.2, 0.4, 0.5, 0.75, 1.0])
         p_opt = fit_params_mat[0, i, :]
         y_fit_ideal = abs(my_func(x_data, *tuple(p_opt)))
-        y_data_real = abs(bvec[i, :] * i_damage_vec[i] *2*10**(-7) / 1000)
-        y_ideal = abs(bvec_i[i, :] * i_ideal_vec[i] *2*10**(-7) / 1000)
-        #ax2.plot(x_data, (y_data_real/i_damage_vec[i]-y_fit_ideal/abs(p_opt[0])) / (y_fit_ideal/abs(p_opt[0])), color=c, marker='x', linestyle='-', label='f=' + str(freq_list[i]) + "Hz")
-        ax2.plot(x_data, (y_data_real/i_damage_vec[i]-y_fit_ideal/i_ideal_vec[i]) / (y_fit_ideal/i_ideal_vec[i]), color=c, marker='x', linestyle='-', label='f=' + str(freq_list[i]) + "Hz")
-        #ax2.plot(x_data, (y_data_real/i_damage_vec[i]-(y_ideal/i_ideal_vec[i])) / (y_ideal/i_ideal_vec[i]), color=c, linestyle='--', label='sim data f=' + str(freq_list[i]) + "Hz")
+        y_data_real = abs(bvec[i, :] * i_damage_vec[i] * 2 * 10 ** (-7) / 1000)
+        y_ideal = abs(bvec_i[i, :] * i_ideal_vec[i] * 2 * 10 ** (-7) / 1000)
+        # ax2.plot(x_data, (y_data_real/i_damage_vec[i]-y_fit_ideal/abs(p_opt[0])) / (y_fit_ideal/abs(p_opt[0])), color=c, marker='x', linestyle='-', label='f=' + str(freq_list[i]) + "Hz")
+        ax2.plot(x_data,
+                 (y_data_real / i_damage_vec[i] - y_fit_ideal / i_ideal_vec[i]) / (y_fit_ideal / i_ideal_vec[i]),
+                 color=c, marker='x', linestyle='-', label='f=' + str(freq_list[i]) + "Hz")
+        # ax2.plot(x_data, (y_data_real/i_damage_vec[i]-(y_ideal/i_ideal_vec[i])) / (y_ideal/i_ideal_vec[i]), color=c, linestyle='--', label='sim data f=' + str(freq_list[i]) + "Hz")
 
         y_data_real = bvec[i, :]
         y_ideal = bvec_i[i, :]
-        ax2.plot(x_data, (y_data_real-(y_ideal)) / (y_ideal), color=c, linestyle='--', label='sim data f=' + str(freq_list[i]) + "Hz")
-        #print(y_ideal)
-
+        ax2.plot(x_data, (y_data_real - (y_ideal)) / (y_ideal), color=c, linestyle='--',
+                 label='sim data f=' + str(freq_list[i]) + "Hz")
+        # print(y_ideal)
 
         ax2.ticklabel_format(axis='y', style='sci', scilimits=(0, 0), useOffset=None, useLocale=None, useMathText=None)
     ax2.set_xlim(-1.0, 1.0)
@@ -111,10 +152,10 @@ def fit_params_FH_data(my_func, factor=89000):
         p_opt = fit_params_mat[0, i, :]
 
         y_fit_ideal = my_func(x_data, *tuple(p_opt))
-        #y_data_real = bvec[i, :] / (1000 * factor)
+        # y_data_real = bvec[i, :] / (1000 * factor)
         y_sim_ideal = bvec_i[i, :] / (1000 * factor)
-        #ax3.plot(x_data, y_fit_ideal, color=c, marker='x', linestyle='-', label='fit f=' + str(freq_list[i]) + "Hz")
-        ax3.plot(x_data, y_sim_ideal-y_fit_ideal, color=c, linestyle='--', label='sim f=' + str(freq_list[i]) + "Hz")
+        # ax3.plot(x_data, y_fit_ideal, color=c, marker='x', linestyle='-', label='fit f=' + str(freq_list[i]) + "Hz")
+        ax3.plot(x_data, y_sim_ideal - y_fit_ideal, color=c, linestyle='--', label='sim f=' + str(freq_list[i]) + "Hz")
     ax3.legend()
     plt.grid(True)
     plt.show()

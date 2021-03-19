@@ -19,7 +19,6 @@ def b_field_circle(I, x, y, x0, y0):
 
     return b_vec
 
-
 def b_field_ellipse(I, x, y, x0, y0, lamb, alpha):
     """
     Magnetic field components in the elliptic field case:
@@ -61,25 +60,110 @@ def b_field_ellipse(I, x, y, x0, y0, lamb, alpha):
 
     return b_vec
 
-
 def model_function_geometry_circle(x_data, I, x0, y0):
-    x = x_data[:,0]
-    y = x_data[:,1]
-    z = x_data[:,2]
+    x = x_data[:, 0]
+    y = x_data[:, 1]
+    z = x_data[:, 2]
 
+    b_vec_comp = b_field_circle(I, x, y, x0, y0)[:, 0]
 
-    b_vec_comp = b_field_circle(I, x, y, x0, y0)[:,0]
+    return b_vec_comp
+
+def model_function_geometry_circle_all(x_data, I, x0, y0):
+    x = x_data[:, 0]
+    y = x_data[:, 1]
+    z = x_data[:, 2]
+
+    b_vec = np.zeros((len(x), 3))
+    b_vec[:, 0] = b_field_circle(I, x, y, x0, y0)[:, 0]
+    b_vec[:, 1] = b_field_circle(I, x, y, x0, y0)[:, 1]
+    b_vec[:, 2] = b_field_circle(I, x, y, x0, y0)[:, 2]
+
+    b_vec_stack = np.concatenate((b_vec[:, 0], b_vec[:, 1]), axis=None)
+    return b_vec_stack
+
+def model_function_geometry_circle_b_all(x_data, I, x0, y0, x0b, y0b):
+    x = x_data[:, 0]
+    y = x_data[:, 1]
+    z = x_data[:, 2]
+
+    b_vec_x = (b_field_circle(I, x, y, x0, y0)[:, 0]
+               + b_field_circle(-I, x, y, x0b, y0b)[:, 0])
+    b_vec_y = (b_field_circle(I, x, y, x0, y0)[:, 1]
+               + b_field_circle(-I, x, y, x0b, y0b)[:, 1])
+    b_vec_stack = np.concatenate((b_vec_x, b_vec_y), axis=None)
+    return b_vec_stack
+
+def model_function_geometry_circle_bg_all(x_data, I, x0, y0, bx0, by0):
+    x = x_data[:, 0]
+    y = x_data[:, 1]
+    z = x_data[:, 2]
+
+    b_vec_x = (b_field_circle(I, x, y, x0, y0)[:, 0] + bx0)
+    b_vec_y = (b_field_circle(I, x, y, x0, y0)[:, 1] + by0)
+    b_vec_stack = np.concatenate((b_vec_x, b_vec_y), axis=None)
+    return b_vec_stack
+
+def model_function_geometry_ellipse_old(x_data, I, x0, y0, lamb, alpha):
+    x = x_data[:, 0]
+    y = x_data[:, 1]
+    z = x_data[:, 2]
+
+    lamb1 = np.arctan(lamb) / np.pi * 2
+    #lamb1 = np.tanh(lamb)
+
+    b_vec_comp = b_field_ellipse(I, x, y, x0, y0, lamb1, alpha)[:, 0]
 
     return b_vec_comp
 
 def model_function_geometry_ellipse(x_data, I, x0, y0, lamb, alpha):
-    x = x_data[:,0]
-    y = x_data[:,1]
-    z = x_data[:,2]
+    x = x_data[:, 0]
+    y = x_data[:, 1]
+    z = x_data[:, 2]
 
+    #lamb1 = np.arctan(lamb) / np.pi * 2
+    lamb1 = np.tanh(lamb)
 
-    lamb1 = np.arctan(lamb) / np.pi * 2
-
-    b_vec_comp = b_field_ellipse(I, x, y, x0, y0, lamb1, alpha)[:,0]
+    b_vec_comp = b_field_ellipse(I, x, y, x0, y0, lamb1, alpha)[:, 0]
 
     return b_vec_comp
+
+def model_function_geometry_ellipse_all(x_data, I, x0, y0, lamb, alpha):
+    x = x_data[:, 0]
+    y = x_data[:, 1]
+    z = x_data[:, 2]
+
+    lamb1 = np.tanh(lamb)
+
+    b_vec_x = b_field_ellipse(I, x, y, x0, y0, lamb1, alpha)[:, 0]
+    b_vec_y = b_field_ellipse(I, x, y, x0, y0, lamb1, alpha)[:, 1]
+    b_vec_stack = np.concatenate((b_vec_x, b_vec_y), axis=None)
+    return b_vec_stack
+
+def model_function_geometry_ellipse_b_all(x_data, I, x0, y0, lamb, alpha, x0b, y0b):
+    x = x_data[:, 0]
+    y = x_data[:, 1]
+    z = x_data[:, 2]
+
+    lamb1 = np.tanh(lamb)
+
+    b_vec_x = (b_field_ellipse(I, x, y, x0, y0, lamb1, alpha)[:, 0]
+               + b_field_circle(-I, x, y, x0b, y0b)[:, 0])
+    b_vec_y = (b_field_ellipse(I, x, y, x0, y0, lamb1, alpha)[:, 1]
+               + b_field_circle(-I, x, y, x0b, y0b)[:, 1])
+    b_vec_stack = np.concatenate((b_vec_x, b_vec_y), axis=None)
+    return b_vec_stack
+
+def model_function_geometry_ellipse_background_all(x_data, I, x0, y0, lamb, alpha, bx0, by0):
+    x = x_data[:, 0]
+    y = x_data[:, 1]
+    z = x_data[:, 2]
+
+    lamb1 = np.tanh(lamb)
+
+    b_vec_x = b_field_ellipse(I, x, y, x0, y0, lamb1, alpha)[:, 0] + bx0
+
+    b_vec_y = b_field_ellipse(I, x, y, x0, y0, lamb1, alpha)[:, 1] + by0
+
+    b_vec_stack = np.concatenate((b_vec_x, b_vec_y), axis=None)
+    return b_vec_stack
